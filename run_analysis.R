@@ -13,12 +13,6 @@ if (!file.exists("dataset.zip")) {
 # Loading features
 features.data <- read.table(paste0(data.dir, "UCI HAR Dataset/features.txt"))
 features.labels <- features.data[, 2]
-features.selected <- features.data[grep('(mean|std)\\(\\)', features.labels), 2]
-
-# Load activity labels
-activities.data <- 
-  paste0(data.dir, "UCI HAR Dataset/activity_labels.txt") %>%
-  read.table(col.names = c('activity_id', 'activity_label'))
 
 # Load trainingdata
 x_train <-
@@ -58,15 +52,13 @@ dataset.test <-
 
 ## Merge train and test
 dataset.merged <- 
-  rbind(dataset.train, dataset.test) %>% 
-  merge(activities.data, by='activity_id')
+  rbind(dataset.train, dataset.test)
  
 ## Create independent tidy data set with the average of each variable for each activity and each subject.
 dataset.grouped <-
   dataset.merged %>%
   group_by(activity_id, subject_id) %>%
-  summarise_all(mean, .vars = -activity_label)
+  summarise_all(mean)
   
-# Write tidy file  
-write.table(dataset.grouped, "tidy.txt")
-
+# Write result to file  
+write.table(dataset.grouped, "averages.txt", row.name = FALSE)
